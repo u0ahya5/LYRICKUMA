@@ -1,9 +1,9 @@
 import StartButton from "./StartButton";
 
-export default function StartActions({ loadLabel, bookmarkLabel }) {
+export default function StartActions({ loadLabel, bookmarkLabel, onLoad }) {
   return (
     <div className="start-actions">
-      <StartButton>{loadLabel}</StartButton>
+      <StartButton onClick={onLoad}>{loadLabel}</StartButton>
       <StartButton>{bookmarkLabel}</StartButton>
     </div>
   );

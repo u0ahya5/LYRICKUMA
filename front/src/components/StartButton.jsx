@@ -1,3 +1,7 @@
-export default function StartButton({ children }) {
-  return <button type="button">{children}</button>;
+export default function StartButton({ children, className = "", onClick }) {
+  return (
+    <button type="button" className={className} onClick={onClick}>
+      {children}
+    </button>
+  );
 }

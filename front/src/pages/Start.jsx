@@ -1,21 +1,38 @@
+import { useState } from "react";
 import "./Start.css";
 import BrandLogo from "../components/BrandLogo";
 import StartActions from "../components/StartActions";
 import YoutubeLinkInput from "../components/YoutubeLinkInput";
 
-const COPY = {
-  placeholder: "\uc720\ud29c\ube0c \ub9c1\ud06c\ub97c \uc785\ub825\ud558\uc138\uc694",
-  load: "\ubd88\ub7ec\uc624\uae30",
-  bookmark: "\uad6c\uac04 \ubd81\ub9c8\ud06c",
-};
+const YOUTUBE_PLACEHOLDER = "유튜브 링크를 입력하세요";
+const LOAD_LABEL = "불러오기";
+const BOOKMARK_LABEL = "구간 북마크";
 
-export default function Start() {
+export default function Start({ onLoad }) {
+  const [youtubeUrl, setYoutubeUrl] = useState("");
+
+  const handleLoad = () => {
+    if (!youtubeUrl.trim()) {
+      return;
+    }
+
+    onLoad(youtubeUrl.trim());
+  };
+
   return (
     <main className="start-page">
       <section className="start-panel" aria-label="Lyrickuma start screen">
         <BrandLogo />
-        <YoutubeLinkInput placeholder={COPY.placeholder} />
-        <StartActions loadLabel={COPY.load} bookmarkLabel={COPY.bookmark} />
+        <YoutubeLinkInput
+          placeholder={YOUTUBE_PLACEHOLDER}
+          value={youtubeUrl}
+          onChange={(event) => setYoutubeUrl(event.target.value)}
+        />
+        <StartActions
+          loadLabel={LOAD_LABEL}
+          bookmarkLabel={BOOKMARK_LABEL}
+          onLoad={handleLoad}
+        />
       </section>
     </main>
   );

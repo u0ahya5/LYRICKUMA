@@ -5,19 +5,18 @@ import YoutubeLinkInput from "../components/YoutubeLinkInput";
 import "./Main.css";
 
 const SPEEDS = ["0.5x", "0.75x", "1.0x", "1.25x", "1.5x"];
-const YOUTUBE_PLACEHOLDER =
-  "\uc720\ud29c\ube0c \ub9c1\ud06c\ub97c \uc785\ub825\ud558\uc138\uc694";
-const LOAD_LABEL = "\ubd88\ub7ec\uc624\uae30";
-const BOOKMARK_LABEL = "\uad6c\uac04 \ubd81\ub9c8\ud06c";
-const REPEAT_SECTION_LABEL = "\ubc18\ubcf5 \uad6c\uac04";
-const SECTION_NAME_PLACEHOLDER =
-  "\uad6c\uac04 \uc774\ub984\uc744 \uc785\ub825\ud558\uc138\uc694";
-const REPEAT_LABEL = "\ubc18\ubcf5";
-const SAVE_SECTION_LABEL = "\uad6c\uac04 \uc800\uc7a5";
-const SPEED_LABEL = "\uc7ac\uc0dd \uc18d\ub3c4";
-const START_TIME_LABEL = "\ubc18\ubcf5 \uc2dc\uc791 \uc2dc\uac04";
-const END_TIME_LABEL = "\ubc18\ubcf5 \uc885\ub8cc \uc2dc\uac04";
-const VIDEO_TITLE = "\uc720\ud29c\ube0c \uc601\uc0c1";
+const TOTAL_SECONDS = 163;
+const YOUTUBE_PLACEHOLDER = "유튜브 링크를 입력하세요";
+const LOAD_LABEL = "불러오기";
+const BOOKMARK_LABEL = "구간 북마크";
+const REPEAT_SECTION_LABEL = "반복 구간";
+const SECTION_NAME_PLACEHOLDER = "구간 이름을 입력하세요";
+const REPEAT_LABEL = "반복";
+const SAVE_SECTION_LABEL = "구간 저장";
+const SPEED_LABEL = "재생 속도";
+const START_TIME_LABEL = "반복 시작 시간";
+const END_TIME_LABEL = "반복 종료 시간";
+const VIDEO_TITLE = "유튜브 영상";
 
 const formatTime = (seconds) => {
   const normalizedSeconds = Math.max(0, Math.floor(seconds));

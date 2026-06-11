@@ -1,52 +1,92 @@
-*{
+* {
+    box-sizing: border-box;
+}
+
+body, #root {
     background-color: #FFEA8B;
+    font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+    margin: 0;
 }
 
 .header-container {
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: space-between;
+    padding: 81px 72px 0px;
 }
 
-.main-logo{
-    width: 70px;
-    margin-top: 72px;
+.header-container .start-logo {
+    display: flex;
+    align-items: center;
+    gap: 23px;
+    margin: 0;
+    transform: none;
 }
 
-.text-logo{
-    width: 190px;
-    margin-left: 30px;
-    margin-top: 86px;
+.header-container .start-logo__mark {
+    display: block;
+    width: 84px;
+    height: auto;
 }
 
-.home-button{
-    background-color: #C68310;
-    color: #fff;
-    border-radius: 30px;
-    padding: 10px;
-    width: 150px;
-    height: 63px;
-    margin: 10px;
-    margin-top: 70px;
-    margin-left: auto;
-    font-size: 17px;
+.header-container .start-logo__text {
+    display: block;
+    width: 168px;
+    height: auto;
+    margin-top: 8px;
+}
+
+.home-button {
+    width: 180px;
+    height: 74px;
+    border: 1.5px solid #3a2406;
+    border-radius: 28px;
+    background-color: #cf8707;
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    margin-right: 5px;
+}
+
+.bookmark-container {
+    width: 100%;
+    padding: 0 72px;
+    margin: 46px auto;
+    
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    
+    /* ----------------------------------------------------
+       👇 여기서 간격을 조절하세요! 
+       - 앞의 값(40px)은 위아래 카드 간격
+       - 뒤의 값(50px)은 좌우 카드 간격입니다. 
+       - 더 널찍하게 벌리고 싶다면 값을 더 키우시면 됩니다!
+    ------------------------------------------------------- */
+    gap: 40px 50px; 
 }
 
 .view-more-container {
     display: flex;
     justify-content: center;
-
     margin-top: 40px;
-    margin-bottom: 40px;
+    margin-bottom: 80px;
 }
 
-.view-more-button{
+.view-more-button {
+    width: 180px;
+    height: 74px;
+    border: 1.5px solid #3a2406;
+    border-radius: 28px;
     background-color: #C68310;
-    color: #fff;
-    border-radius: 30px;
-    padding: 10px;
-    width: 150px;
-    height: 63px;
-    margin: 10px;
-    font-size: 17px;
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.view-more-button:hover {
+    background-color: #aa700d;
 }

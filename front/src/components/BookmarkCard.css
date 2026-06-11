@@ -1,5 +1,9 @@
+*{
+    font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+}
+
 .bookmark-card {
-    width: 270px;
+    width: 330px;
     min-height: 200px;
     padding: 20px;
     padding-right: 45px;
@@ -19,8 +23,6 @@
     display: grid;
 
     grid-template-columns: repeat(3, 1fr);
-
-    gap: 30px;
 
     justify-items: center;
 
@@ -45,7 +47,7 @@
 .bookmark-title {
     background-color: white;
 
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 500;
     color: #000000;
 

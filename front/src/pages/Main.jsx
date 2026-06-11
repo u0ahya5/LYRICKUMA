@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import BrandLogo from "../components/BrandLogo";
 import StartButton from "../components/StartButton";
 import YoutubeLinkInput from "../components/YoutubeLinkInput";
 import "./Main.css";
+import BookmarkPage from "./BookmarkPage";
 
 const SPEEDS = ["0.5x", "0.75x", "1.0x", "1.25x", "1.5x"];
 const TOTAL_SECONDS = 163;
@@ -84,7 +86,7 @@ function getYoutubeVideoId(url) {
   }
 }
 
-export default function Main({ initialYoutubeUrl }) {
+export default function Main({ initialYoutubeUrl, onBookmark, }) {
   const playerElementRef = useRef(null);
   const playerRef = useRef(null);
   const [youtubeUrl, setYoutubeUrl] = useState(initialYoutubeUrl);
@@ -218,7 +220,10 @@ export default function Main({ initialYoutubeUrl }) {
             {LOAD_LABEL}
           </StartButton>
         </div>
-        <StartButton className="main-bookmark-button">
+        <StartButton
+          className="main-bookmark-button"
+          onClick={onBookmark}
+        >
           {BOOKMARK_LABEL}
         </StartButton>
       </header>

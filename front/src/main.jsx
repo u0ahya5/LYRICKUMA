@@ -6,6 +6,6 @@ import BookmarkPage from './pages/BookmarkPage.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BookmarkPage />
+    <App />
   </StrictMode>,
 )

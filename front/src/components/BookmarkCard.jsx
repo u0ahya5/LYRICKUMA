@@ -1,4 +1,4 @@
-import "../styles/BookmarkCard.css";
+import "./BookmarkCard.css";
 
 function BookmarkCard({
   title,

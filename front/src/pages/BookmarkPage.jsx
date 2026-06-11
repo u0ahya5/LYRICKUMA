@@ -1,9 +1,9 @@
 import BookmarkCard from "../components/BookmarkCard";
 import text_logo from "../assets/logo/LYRICKUMA.png";
 import main_logo from "../assets/logo/main-logo.png";
-import "../styles/BookmarkPage.css";
+import "./BookmarkPage.css";
 
-export default function BookmarkPage() {
+export default function BookmarkPage({onHome,}) {
   const bookmarks = [
     {
       id: 1,

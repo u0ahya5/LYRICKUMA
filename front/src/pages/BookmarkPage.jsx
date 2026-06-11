@@ -1,6 +1,5 @@
 import BookmarkCard from "../components/BookmarkCard";
-import text_logo from "../assets/logo/LYRICKUMA.png";
-import main_logo from "../assets/logo/main-logo.png";
+import BrandLogo from "../components/BrandLogo";
 import "./BookmarkPage.css";
 
 export default function BookmarkPage({onHome,}) {
@@ -41,7 +40,7 @@ export default function BookmarkPage({onHome,}) {
     }
   }
 
-  function Thumbnail(url) {
+  function getThumbnail(url) {
     const videoId = getYoutubeVideoId(url);
 
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
@@ -61,19 +60,12 @@ export default function BookmarkPage({onHome,}) {
   return (
     <div>
       <div className="header-container">
-        <img
-          src={main_logo}
-          className="main-logo"
-          alt="main logo"
-        />
-
-        <img
-          src={text_logo}
-          className="text-logo"
-          alt="LYRICKUMA"
-        />
-
-        <button className="home-button">
+        <BrandLogo />
+         
+        <button
+          className="home-button"
+          onClick={onHome}
+        >
           홈으로
         </button>
       </div>
@@ -84,7 +76,7 @@ export default function BookmarkPage({onHome,}) {
             key={bookmark.id}
             title={bookmark.title}
             date={bookmark.date}
-            thumbnail={Thumbnail(bookmark.youtubeUrl)}
+            thumbnail={getThumbnail(bookmark.youtubeUrl)}
             onClick={() => handleBookmarkClick(bookmark)}
           />
         ))}

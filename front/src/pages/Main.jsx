@@ -103,6 +103,16 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
   const [sectionEndInput, setSectionEndInput] = useState("00:00");
   const [videoDuration, setVideoDuration] = useState(0);
 
+  const repeatOnRef = useRef(repeatOn);
+  const sectionStartRef = useRef(sectionStart);
+  const sectionEndRef = useRef(sectionEnd);
+
+  useEffect(() => {
+    repeatOnRef.current = repeatOn;
+    sectionStartRef.current = sectionStart;
+    sectionEndRef.current = sectionEnd;
+  }, [repeatOn, sectionStart, sectionEnd]);
+
   const videoId = getYoutubeVideoId(loadedVideoUrl);
   const totalSeconds = Math.max(videoDuration, 1);
   const sectionStartPercent = (sectionStart / totalSeconds) * 100;
@@ -115,6 +125,7 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
     }
 
     let isActive = true;
+    let intervalId = null;
 
     setVideoDuration(0);
     setSectionStart(0);
@@ -139,18 +150,41 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
 
             if (isActive && duration > 0) {
               setVideoDuration(duration);
+              setSectionEnd(duration);
+              setSectionEndInput(formatTime(duration));
             }
 
             if (speedRef.current) {
               event.target.setPlaybackRate(parseSpeed(speedRef.current));
             }
           },
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              if (intervalId) clearInterval(intervalId);
+
+              intervalId = setInterval(() => {
+                if (!playerRef.current?.getCurrentTime) return;
+
+                const currentTime = playerRef.current.getCurrentTime();
+                
+                if (repeatOnRef.current && currentTime >= sectionEndRef.current) {
+                  playerRef.current.seekTo(sectionStartRef.current, true);
+                }
+              }, 200);
+            } else {
+              if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+              }
+            }
+          }
         },
       });
     });
 
     return () => {
       isActive = false;
+      if (intervalId) clearInterval(intervalId);
       playerRef.current?.destroy?.();
       playerRef.current = null;
     };
@@ -161,6 +195,10 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
 
     setSectionStart(clampedStart);
     setSectionStartInput(formatTime(clampedStart));
+
+    if (repeatOn && playerRef.current?.seekTo) {
+      playerRef.current.seekTo(clampedStart, true);
+    }
   };
 
   const updateSectionEnd = (nextEnd) => {
@@ -320,7 +358,17 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
           </div>
           <StartButton
             className={repeatOn ? "utility-button repeat-toggle is-active" : "utility-button repeat-toggle"}
-            onClick={() => setRepeatOn((current) => !current)}
+            onClick={() => {
+              setRepeatOn((current) => {
+                const nextState = !current;
+                
+                if (nextState && playerRef.current?.seekTo) {
+                  playerRef.current.seekTo(sectionStart, true);
+                }
+                
+                return nextState;
+              });
+            }}
           >
             {REPEAT_LABEL} {repeatOn ? "ON" : "OFF"}
           </StartButton>

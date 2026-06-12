@@ -37,6 +37,8 @@ const parseTime = (value) => {
   return Number(match[1]) * 60 + Number(match[2]);
 };
 
+const parseSpeed = (value) => Number(value.replace("x", ""));
+
 let youtubeApiPromise;
 
 function loadYoutubeApi() {
@@ -89,6 +91,7 @@ function getYoutubeVideoId(url) {
 export default function Main({ initialYoutubeUrl, onBookmark, }) {
   const playerElementRef = useRef(null);
   const playerRef = useRef(null);
+  const speedRef = useRef("");
   const [youtubeUrl, setYoutubeUrl] = useState(initialYoutubeUrl);
   const [loadedVideoUrl, setLoadedVideoUrl] = useState(initialYoutubeUrl);
   const [sectionName, setSectionName] = useState("");
@@ -136,6 +139,10 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
 
             if (isActive && duration > 0) {
               setVideoDuration(duration);
+            }
+
+            if (speedRef.current) {
+              event.target.setPlaybackRate(parseSpeed(speedRef.current));
             }
           },
         },
@@ -203,6 +210,12 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
     }
 
     setLoadedVideoUrl(youtubeUrl.trim());
+  };
+
+  const handleSpeedChange = (nextSpeed) => {
+    speedRef.current = nextSpeed;
+    setSpeed(nextSpeed);
+    playerRef.current?.setPlaybackRate?.(parseSpeed(nextSpeed));
   };
 
   return (
@@ -305,7 +318,7 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
               <StartButton
                 className={speed === option ? "speed-button is-active" : "speed-button"}
                 key={option}
-                onClick={() => setSpeed(option)}
+                onClick={() => handleSpeedChange(option)}
               >
                 {option}
               </StartButton>

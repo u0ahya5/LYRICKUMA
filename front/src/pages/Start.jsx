@@ -8,7 +8,7 @@ const YOUTUBE_PLACEHOLDER = "유튜브 링크를 입력하세요";
 const LOAD_LABEL = "불러오기";
 const BOOKMARK_LABEL = "구간 북마크";
 
-export default function Start({ onLoad }) {
+export default function Start({ onLoad, onBookmark }) {
   const [youtubeUrl, setYoutubeUrl] = useState("");
 
   const handleLoad = () => {
@@ -32,6 +32,7 @@ export default function Start({ onLoad }) {
           loadLabel={LOAD_LABEL}
           bookmarkLabel={BOOKMARK_LABEL}
           onLoad={handleLoad}
+          onBookmark={onBookmark}
         />
       </section>
     </main>

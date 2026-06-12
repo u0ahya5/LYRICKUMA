@@ -14,6 +14,9 @@ export default function App() {
           setLoadedYoutubeUrl(url);
           setPage("main");
         }}
+        onBookmark={() => {
+          setPage("bookmark");
+        }}
       />
     );
   }
@@ -29,6 +32,7 @@ export default function App() {
   return (
     <Main
       initialYoutubeUrl={loadedYoutubeUrl}
+      onUrlChange={(url) => setLoadedYoutubeUrl(url)}
       onBookmark={() => setPage("bookmark")}
     />
   );

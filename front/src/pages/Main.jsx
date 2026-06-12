@@ -88,7 +88,7 @@ function getYoutubeVideoId(url) {
   }
 }
 
-export default function Main({ initialYoutubeUrl, onBookmark, }) {
+export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
   const playerElementRef = useRef(null);
   const playerRef = useRef(null);
   const speedRef = useRef("");
@@ -204,19 +204,59 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
     setSectionEndInput(formatTime(sectionEnd));
   };
 
+  useEffect(() => {
+    setYoutubeUrl(initialYoutubeUrl);
+    setLoadedVideoUrl(initialYoutubeUrl);
+  }, [initialYoutubeUrl]);
+
   const handleLoadVideo = () => {
     if (!youtubeUrl.trim()) {
       return;
     }
 
-    setLoadedVideoUrl(youtubeUrl.trim());
+    const trimmedUrl = youtubeUrl.trim();
+    setLoadedVideoUrl(trimmedUrl);
+    onUrlChange?.(trimmedUrl);
   };
-
+  
   const handleSpeedChange = (nextSpeed) => {
     speedRef.current = nextSpeed;
     setSpeed(nextSpeed);
     playerRef.current?.setPlaybackRate?.(parseSpeed(nextSpeed));
   };
+
+  const handleSaveSection = () => {
+  if (!sectionName.trim()) {
+    alert("구간 이름을 입력하세요!");
+    return;
+  }
+  if (!loadedVideoUrl.trim()) {
+    alert("재생 중인 영상 링크가 없습니다!");
+    return;
+  }
+
+  const today = new Date();
+  const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+  const newBookmark = {
+    id: Date.now(),
+    title: sectionName.trim(),
+    date: formattedDate,
+    youtubeUrl: loadedVideoUrl,
+    startTime: sectionStart,
+    endTime: sectionEnd,
+    speed: speed || "1.0x",
+    isLooping: repeatOn,
+  };
+
+  const existingBookmarks = JSON.parse(localStorage.getItem("lyrickuma_bookmarks")) || [];
+
+  const updatedBookmarks = [newBookmark, ...existingBookmarks];
+  localStorage.setItem("lyrickuma_bookmarks", JSON.stringify(updatedBookmarks));
+
+  alert("구간이 저장되었습니다!");
+  setSectionName(""); 
+};
 
   return (
     <main className="main-page">
@@ -235,7 +275,10 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
         </div>
         <StartButton
           className="main-bookmark-button"
-          onClick={onBookmark}
+          onClick={() => {
+            onUrlChange?.(youtubeUrl.trim());
+            onBookmark();
+          }}
         >
           {BOOKMARK_LABEL}
         </StartButton>
@@ -334,7 +377,9 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
             onChange={(event) => setSectionName(event.target.value)}
           />
           <div className="save-actions">
-            <StartButton className="utility-button">{SAVE_SECTION_LABEL}</StartButton>
+            <StartButton className="utility-button" onClick={handleSaveSection}>
+              {SAVE_SECTION_LABEL}
+            </StartButton>
           </div>
         </div>
       </section>

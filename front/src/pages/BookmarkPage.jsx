@@ -9,6 +9,8 @@ export default function BookmarkPage({onHome, onSelectBookmark}) {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [isExpanded, setIsExpanded] = useState(false);
+
   useEffect(() => {
     const saved = localStorage.getItem("lyrickuma_bookmarks");
     if (saved) {
@@ -42,9 +44,10 @@ export default function BookmarkPage({onHome, onSelectBookmark}) {
   }
 
   function handleBookmarkClick(bookmark) {
-
     onSelectBookmark?.(bookmark);
   }
+
+  const visibleBookmarks = isExpanded ? bookmarks : bookmarks.slice(0, 6);
 
   return (
     <div>
@@ -65,7 +68,7 @@ export default function BookmarkPage({onHome, onSelectBookmark}) {
             아직 저장된 구간 북마크가 없습니다. 메인 화면에서 구간을 저장해 보세요!
           </p>
         ) : (
-          bookmarks.map((bookmark) => (
+          visibleBookmarks.map((bookmark) => (
             <BookmarkCard
               key={bookmark.id}
               title={bookmark.title}
@@ -77,11 +80,13 @@ export default function BookmarkPage({onHome, onSelectBookmark}) {
         )}
       </div>
 
-      <div className="view-more-container">
-        <button className="view-more-button">
-          더보기
-        </button>
-      </div>
+      {bookmarks.length > 6 && !isExpanded && (
+        <div className="view-more-container">
+          <button className="view-more-button" onClick={() => setIsExpanded(true)}>
+            더보기
+          </button>
+        </div>
+      )}
     </div>
   );
 }

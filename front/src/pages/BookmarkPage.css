@@ -6,6 +6,8 @@ body, #root {
     background-color: #FFEA8B;
     font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
     margin: 0;
+    min-height: 100vh;
+    overflow-y: auto;
 }
 
 .header-container {
@@ -57,13 +59,6 @@ body, #root {
     
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    
-    /* ----------------------------------------------------
-       👇 여기서 간격을 조절하세요! 
-       - 앞의 값(40px)은 위아래 카드 간격
-       - 뒤의 값(50px)은 좌우 카드 간격입니다. 
-       - 더 널찍하게 벌리고 싶다면 값을 더 키우시면 됩니다!
-    ------------------------------------------------------- */
     gap: 40px 50px; 
 }
 

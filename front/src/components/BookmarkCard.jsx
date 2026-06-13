@@ -1,11 +1,6 @@
 import "./BookmarkCard.css";
 
-function BookmarkCard({
-  title,
-  date,
-  thumbnail,
-  onClick,
-}) {
+function BookmarkCard({ title, date, thumbnail, onClick}) {
   return (
     <div
       className="bookmark-card"

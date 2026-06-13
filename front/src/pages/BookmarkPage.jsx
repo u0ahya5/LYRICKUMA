@@ -47,6 +47,13 @@ export default function BookmarkPage({onHome, onSelectBookmark}) {
     onSelectBookmark?.(bookmark);
   }
 
+  function handleDeleteBookmark(bookmarkId) {
+    const updatedBookmarks = bookmarks.filter((bookmark) => bookmark.id !== bookmarkId);
+
+    setBookmarks(updatedBookmarks);
+    localStorage.setItem("lyrickuma_bookmarks", JSON.stringify(updatedBookmarks));
+  }
+
   const visibleBookmarks = isExpanded ? bookmarks : bookmarks.slice(0, 6);
 
   return (
@@ -75,6 +82,7 @@ export default function BookmarkPage({onHome, onSelectBookmark}) {
               date={bookmark.date}
               thumbnail={getThumbnail(bookmark.youtubeUrl)}
               onClick={() => handleBookmarkClick(bookmark)}
+              onDelete={() => handleDeleteBookmark(bookmark.id)}
             />
           ))
         )}

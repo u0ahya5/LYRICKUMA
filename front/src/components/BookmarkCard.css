@@ -3,6 +3,7 @@
 }
 
 .bookmark-card {
+    position: relative;
     width: 330px;
     min-height: 200px;
     padding: 20px;
@@ -61,4 +62,44 @@
 
     border: 1px solid #000000;
     border-radius: 20px;
+}
+
+.bookmark-menu-button {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border: 0;
+    border-radius: 50%;
+    background-color: transparent;
+    color: #000000;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.bookmark-menu-button:hover {
+    background-color: #fff3c6;
+}
+
+.bookmark-delete-button {
+    position: absolute;
+    top: 44px;
+    right: 14px;
+    width: 62px;
+    height: 34px;
+    border: 1px solid #000000;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 1;
+}
+
+.bookmark-delete-button:hover {
+    background-color: #fee078;
 }

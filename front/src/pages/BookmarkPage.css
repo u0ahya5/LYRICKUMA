@@ -59,6 +59,7 @@ body, #root {
     
     display: grid;
     grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
     gap: 40px 50px; 
 }
 
@@ -84,4 +85,87 @@ body, #root {
 
 .view-more-button:hover {
     background-color: #aa700d;
+}
+
+@media (max-width: 1180px) {
+    .header-container {
+        padding: 54px 34px 0;
+    }
+
+    .header-container .start-logo__mark {
+        width: 70px;
+    }
+
+    .header-container .start-logo__text {
+        width: 142px;
+    }
+
+    .home-button,
+    .view-more-button {
+        width: 160px;
+        height: 66px;
+        border-radius: 24px;
+        font-size: 20px;
+    }
+
+    .bookmark-container {
+        padding: 0 34px;
+        grid-template-columns: repeat(2, 330px);
+        justify-content: center;
+        gap: 34px;
+    }
+}
+
+@media (max-width: 760px) {
+    .header-container {
+        padding: 28px 16px 0;
+    }
+
+    .header-container .start-logo {
+        gap: 14px;
+    }
+
+    .header-container .start-logo__mark {
+        width: 58px;
+    }
+
+    .header-container .start-logo__text {
+        width: 116px;
+        margin-top: 5px;
+    }
+
+    .home-button,
+    .view-more-button {
+        width: 112px;
+        height: 54px;
+        border-radius: 20px;
+        font-size: 17px;
+        margin-right: 0;
+    }
+
+    .bookmark-container {
+        padding: 0 16px;
+        margin: 28px auto;
+        grid-template-columns: minmax(0, 330px);
+        gap: 22px;
+    }
+
+    .view-more-container {
+        margin-top: 22px;
+        margin-bottom: 48px;
+    }
+}
+
+@media (max-width: 420px) {
+    .header-container {
+        align-items: flex-start;
+    }
+
+    .home-button {
+        width: 96px;
+    }
+
+    .bookmark-container {
+        grid-template-columns: minmax(0, 1fr);
+    }
 }

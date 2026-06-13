@@ -3,7 +3,7 @@ import BookmarkCard from "../components/BookmarkCard";
 import BrandLogo from "../components/BrandLogo";
 import "./BookmarkPage.css";
 
-export default function BookmarkPage({onHome}) {
+export default function BookmarkPage({onHome, onSelectBookmark}) {
   const [bookmarks, setBookmarks] = useState(() => {
     const saved = localStorage.getItem("lyrickuma_bookmarks");
     return saved ? JSON.parse(saved) : [];
@@ -42,14 +42,8 @@ export default function BookmarkPage({onHome}) {
   }
 
   function handleBookmarkClick(bookmark) {
-    console.log("선택한 북마크");
 
-    console.log(bookmark.title);
-    console.log(bookmark.youtubeUrl);
-    console.log(bookmark.startTime);
-    console.log(bookmark.endTime);
-    console.log(bookmark.speed);
-
+    onSelectBookmark?.(bookmark);
   }
 
   return (

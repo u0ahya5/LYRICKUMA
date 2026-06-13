@@ -88,7 +88,7 @@ function getYoutubeVideoId(url) {
   }
 }
 
-export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
+export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark, selectedBookmark, setSelectedBookmark }) {
   const playerElementRef = useRef(null);
   const playerRef = useRef(null);
   const speedRef = useRef("");
@@ -102,6 +102,7 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
   const [sectionStartInput, setSectionStartInput] = useState("00:00");
   const [sectionEndInput, setSectionEndInput] = useState("00:00");
   const [videoDuration, setVideoDuration] = useState(0);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
 
   const repeatOnRef = useRef(repeatOn);
   const sectionStartRef = useRef(sectionStart);
@@ -121,6 +122,7 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
   useEffect(() => {
     if (!videoId || !playerElementRef.current) {
       setVideoDuration(0);
+      setIsPlayerReady(false);
       return undefined;
     }
 
@@ -128,21 +130,23 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
     let intervalId = null;
 
     setVideoDuration(0);
-    setSectionStart(0);
-    setSectionEnd(0);
-    setSectionStartInput("00:00");
-    setSectionEndInput("00:00");
+
+    if (!selectedBookmark) {
+      setSectionStart(0);
+      setSectionEnd(0);
+      setSectionStartInput("00:00");
+      setSectionEndInput("00:00");
+    }
 
     loadYoutubeApi().then((YT) => {
-      if (!isActive || !playerElementRef.current) {
-        return;
-      }
+      if (!isActive || !playerElementRef.current) return;
 
       playerRef.current?.destroy?.();
       playerRef.current = new YT.Player(playerElementRef.current, {
         videoId,
         playerVars: {
           origin: window.location.origin,
+          enablejsapi: 1,
         },
         events: {
           onReady: (event) => {
@@ -150,27 +154,31 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
 
             if (isActive && duration > 0) {
               setVideoDuration(duration);
-              setSectionEnd(duration);
-              setSectionEndInput(formatTime(duration));
+              if (!selectedBookmark) {
+                setSectionEnd(duration);
+                setSectionEndInput(formatTime(duration));
+              }
             }
 
             if (speedRef.current) {
               event.target.setPlaybackRate(parseSpeed(speedRef.current));
             }
+
+            if (isActive) setIsPlayerReady(true);
           },
           onStateChange: (event) => {
             if (event.data === window.YT.PlayerState.PLAYING) {
               if (intervalId) clearInterval(intervalId);
-
+              
               intervalId = setInterval(() => {
                 if (!playerRef.current?.getCurrentTime) return;
-
+                
                 const currentTime = playerRef.current.getCurrentTime();
                 
                 if (repeatOnRef.current && currentTime >= sectionEndRef.current) {
                   playerRef.current.seekTo(sectionStartRef.current, true);
                 }
-              }, 200);
+              }, 40);
             } else {
               if (intervalId) {
                 clearInterval(intervalId);
@@ -190,9 +198,33 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
     };
   }, [videoId]);
 
+  useEffect(() => {
+    if (!selectedBookmark || !isPlayerReady) return;
+
+    setSectionStart(selectedBookmark.startTime);
+    setSectionEnd(selectedBookmark.endTime);
+    setSectionStartInput(formatTime(selectedBookmark.startTime));
+    setSectionEndInput(formatTime(selectedBookmark.endTime));
+
+    setSpeed(selectedBookmark.speed);
+    speedRef.current = selectedBookmark.speed; 
+    setRepeatOn(selectedBookmark.isLooping);
+
+    if (playerRef.current) {
+      if (playerRef.current.setPlaybackRate) {
+        playerRef.current.setPlaybackRate(parseSpeed(selectedBookmark.speed));
+      }
+      if (playerRef.current.seekTo) {
+        playerRef.current.seekTo(selectedBookmark.startTime, true);
+        playerRef.current.playVideo?.();
+      }
+    }
+
+    setSelectedBookmark?.(null);
+  }, [selectedBookmark, isPlayerReady, setSelectedBookmark]);
+
   const updateSectionStart = (nextStart) => {
     const clampedStart = Math.min(nextStart, sectionEnd, totalSeconds);
-
     setSectionStart(clampedStart);
     setSectionStartInput(formatTime(clampedStart));
 
@@ -203,7 +235,6 @@ export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark }) {
 
   const updateSectionEnd = (nextEnd) => {
     const clampedEnd = Math.max(Math.min(nextEnd, totalSeconds), sectionStart);
-
     setSectionEnd(clampedEnd);
     setSectionEndInput(formatTime(clampedEnd));
   };

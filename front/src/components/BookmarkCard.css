@@ -20,16 +20,6 @@
     transition: 0.2s;
 }
 
-.bookmark-container {
-    display: grid;
-
-    grid-template-columns: repeat(3, 1fr);
-
-    justify-items: center;
-
-    margin-top: 40px;
-}
-
 .bookmark-card:hover {
     transform: scale(1.02);
 }
@@ -102,4 +92,28 @@
 
 .bookmark-delete-button:hover {
     background-color: #fee078;
+}
+
+@media (max-width: 520px) {
+    .bookmark-card {
+        width: 100%;
+        min-height: 0;
+        padding: 18px 36px 18px 24px;
+        border-radius: 14px;
+    }
+
+    .bookmark-info {
+        gap: 12px;
+    }
+
+    .bookmark-date,
+    .bookmark-title {
+        font-size: 15px;
+    }
+
+    .bookmark-thumbnail {
+        height: auto;
+        aspect-ratio: 16 / 9;
+        border-radius: 16px;
+    }
 }

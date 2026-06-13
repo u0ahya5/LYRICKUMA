@@ -88,7 +88,7 @@ function getYoutubeVideoId(url) {
   }
 }
 
-export default function Main({ initialYoutubeUrl, onBookmark, }) {
+export default function Main({ initialYoutubeUrl, onUrlChange, onBookmark, selectedBookmark, setSelectedBookmark }) {
   const playerElementRef = useRef(null);
   const playerRef = useRef(null);
   const speedRef = useRef("");
@@ -102,6 +102,17 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
   const [sectionStartInput, setSectionStartInput] = useState("00:00");
   const [sectionEndInput, setSectionEndInput] = useState("00:00");
   const [videoDuration, setVideoDuration] = useState(0);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+
+  const repeatOnRef = useRef(repeatOn);
+  const sectionStartRef = useRef(sectionStart);
+  const sectionEndRef = useRef(sectionEnd);
+
+  useEffect(() => {
+    repeatOnRef.current = repeatOn;
+    sectionStartRef.current = sectionStart;
+    sectionEndRef.current = sectionEnd;
+  }, [repeatOn, sectionStart, sectionEnd]);
 
   const videoId = getYoutubeVideoId(loadedVideoUrl);
   const totalSeconds = Math.max(videoDuration, 1);
@@ -111,27 +122,31 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
   useEffect(() => {
     if (!videoId || !playerElementRef.current) {
       setVideoDuration(0);
+      setIsPlayerReady(false);
       return undefined;
     }
 
     let isActive = true;
+    let intervalId = null;
 
     setVideoDuration(0);
-    setSectionStart(0);
-    setSectionEnd(0);
-    setSectionStartInput("00:00");
-    setSectionEndInput("00:00");
+
+    if (!selectedBookmark) {
+      setSectionStart(0);
+      setSectionEnd(0);
+      setSectionStartInput("00:00");
+      setSectionEndInput("00:00");
+    }
 
     loadYoutubeApi().then((YT) => {
-      if (!isActive || !playerElementRef.current) {
-        return;
-      }
+      if (!isActive || !playerElementRef.current) return;
 
       playerRef.current?.destroy?.();
       playerRef.current = new YT.Player(playerElementRef.current, {
         videoId,
         playerVars: {
           origin: window.location.origin,
+          enablejsapi: 1,
         },
         events: {
           onReady: (event) => {
@@ -139,33 +154,87 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
 
             if (isActive && duration > 0) {
               setVideoDuration(duration);
+              if (!selectedBookmark) {
+                setSectionEnd(duration);
+                setSectionEndInput(formatTime(duration));
+              }
             }
 
             if (speedRef.current) {
               event.target.setPlaybackRate(parseSpeed(speedRef.current));
             }
+
+            if (isActive) setIsPlayerReady(true);
           },
+          onStateChange: (event) => {
+            if (event.data === window.YT.PlayerState.PLAYING) {
+              if (intervalId) clearInterval(intervalId);
+              
+              intervalId = setInterval(() => {
+                if (!playerRef.current?.getCurrentTime) return;
+                
+                const currentTime = playerRef.current.getCurrentTime();
+                
+                if (repeatOnRef.current && currentTime >= sectionEndRef.current) {
+                  playerRef.current.seekTo(sectionStartRef.current, true);
+                }
+              }, 40);
+            } else {
+              if (intervalId) {
+                clearInterval(intervalId);
+                intervalId = null;
+              }
+            }
+          }
         },
       });
     });
 
     return () => {
       isActive = false;
+      if (intervalId) clearInterval(intervalId);
       playerRef.current?.destroy?.();
       playerRef.current = null;
     };
   }, [videoId]);
 
+  useEffect(() => {
+    if (!selectedBookmark || !isPlayerReady) return;
+
+    setSectionStart(selectedBookmark.startTime);
+    setSectionEnd(selectedBookmark.endTime);
+    setSectionStartInput(formatTime(selectedBookmark.startTime));
+    setSectionEndInput(formatTime(selectedBookmark.endTime));
+
+    setSpeed(selectedBookmark.speed);
+    speedRef.current = selectedBookmark.speed; 
+    setRepeatOn(selectedBookmark.isLooping);
+
+    if (playerRef.current) {
+      if (playerRef.current.setPlaybackRate) {
+        playerRef.current.setPlaybackRate(parseSpeed(selectedBookmark.speed));
+      }
+      if (playerRef.current.seekTo) {
+        playerRef.current.seekTo(selectedBookmark.startTime, true);
+        playerRef.current.playVideo?.();
+      }
+    }
+
+    setSelectedBookmark?.(null);
+  }, [selectedBookmark, isPlayerReady, setSelectedBookmark]);
+
   const updateSectionStart = (nextStart) => {
     const clampedStart = Math.min(nextStart, sectionEnd, totalSeconds);
-
     setSectionStart(clampedStart);
     setSectionStartInput(formatTime(clampedStart));
+
+    if (repeatOn && playerRef.current?.seekTo) {
+      playerRef.current.seekTo(clampedStart, true);
+    }
   };
 
   const updateSectionEnd = (nextEnd) => {
     const clampedEnd = Math.max(Math.min(nextEnd, totalSeconds), sectionStart);
-
     setSectionEnd(clampedEnd);
     setSectionEndInput(formatTime(clampedEnd));
   };
@@ -204,19 +273,59 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
     setSectionEndInput(formatTime(sectionEnd));
   };
 
+  useEffect(() => {
+    setYoutubeUrl(initialYoutubeUrl);
+    setLoadedVideoUrl(initialYoutubeUrl);
+  }, [initialYoutubeUrl]);
+
   const handleLoadVideo = () => {
     if (!youtubeUrl.trim()) {
       return;
     }
 
-    setLoadedVideoUrl(youtubeUrl.trim());
+    const trimmedUrl = youtubeUrl.trim();
+    setLoadedVideoUrl(trimmedUrl);
+    onUrlChange?.(trimmedUrl);
   };
-
+  
   const handleSpeedChange = (nextSpeed) => {
     speedRef.current = nextSpeed;
     setSpeed(nextSpeed);
     playerRef.current?.setPlaybackRate?.(parseSpeed(nextSpeed));
   };
+
+  const handleSaveSection = () => {
+  if (!sectionName.trim()) {
+    alert("구간 이름을 입력하세요!");
+    return;
+  }
+  if (!loadedVideoUrl.trim()) {
+    alert("재생 중인 영상 링크가 없습니다!");
+    return;
+  }
+
+  const today = new Date();
+  const formattedDate = `${today.getFullYear()}.${String(today.getMonth() + 1).padStart(2, '0')}.${String(today.getDate()).padStart(2, '0')}`;
+
+  const newBookmark = {
+    id: Date.now(),
+    title: sectionName.trim(),
+    date: formattedDate,
+    youtubeUrl: loadedVideoUrl,
+    startTime: sectionStart,
+    endTime: sectionEnd,
+    speed: speed || "1.0x",
+    isLooping: repeatOn,
+  };
+
+  const existingBookmarks = JSON.parse(localStorage.getItem("lyrickuma_bookmarks")) || [];
+
+  const updatedBookmarks = [newBookmark, ...existingBookmarks];
+  localStorage.setItem("lyrickuma_bookmarks", JSON.stringify(updatedBookmarks));
+
+  alert("구간이 저장되었습니다!");
+  setSectionName(""); 
+};
 
   return (
     <main className="main-page">
@@ -235,7 +344,10 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
         </div>
         <StartButton
           className="main-bookmark-button"
-          onClick={onBookmark}
+          onClick={() => {
+            onUrlChange?.(youtubeUrl.trim());
+            onBookmark();
+          }}
         >
           {BOOKMARK_LABEL}
         </StartButton>
@@ -277,7 +389,17 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
           </div>
           <StartButton
             className={repeatOn ? "utility-button repeat-toggle is-active" : "utility-button repeat-toggle"}
-            onClick={() => setRepeatOn((current) => !current)}
+            onClick={() => {
+              setRepeatOn((current) => {
+                const nextState = !current;
+                
+                if (nextState && playerRef.current?.seekTo) {
+                  playerRef.current.seekTo(sectionStart, true);
+                }
+                
+                return nextState;
+              });
+            }}
           >
             {REPEAT_LABEL} {repeatOn ? "ON" : "OFF"}
           </StartButton>
@@ -334,7 +456,9 @@ export default function Main({ initialYoutubeUrl, onBookmark, }) {
             onChange={(event) => setSectionName(event.target.value)}
           />
           <div className="save-actions">
-            <StartButton className="utility-button">{SAVE_SECTION_LABEL}</StartButton>
+            <StartButton className="utility-button" onClick={handleSaveSection}>
+              {SAVE_SECTION_LABEL}
+            </StartButton>
           </div>
         </div>
       </section>
